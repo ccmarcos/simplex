@@ -1,9 +1,9 @@
 function newInput() {
     var c=1;
     var array = ["<=", "=", ">="];
+    var inpt = document.createElement('input');
     var num_variables_decision = document.getElementById("num_variables_decision").value;
     var num_restricciones = document.getElementById("num_restricciones").value;
-    var inpt = document.createElement('input');
     var selectList = document.createElement('select');
     document.f1.innerHTML += "<strong>Z=</strong>";
 
@@ -17,7 +17,7 @@ function newInput() {
             document.f1.innerHTML += "<strong>X"+(i+1)+"+ </strong>";
           else document.f1.innerHTML += "<strong>X"+(i+1)+"</strong>";
         }
-        document.f1.innerHTML += "</br>"
+        document.f1.innerHTML += "</br>";
     }
 
     if(num_restricciones){
@@ -31,7 +31,7 @@ function newInput() {
             document.f1.innerHTML += "<strong>X"+(j+1)+"+</strong>";
             else if(j<num_variables_decision){
               document.f1.innerHTML +="<strong>X"+(j+1)+"</strong>";
-            selectList.id = "input_"+j+"_"+i;
+            selectList.id = "input_"+i;
             document.f1.appendChild(selectList);
             }
 
@@ -47,9 +47,40 @@ function newInput() {
 
         document.f1.appendChild(inpt);
         }
-
-
-        document.f1.innerHTML += "</br>"
+        document.f1.innerHTML += "</br>";
       }
     }
+    document.f1.innerHTML+="<div>"+"<input type='button' value='solve' onclick='ecuacion()' id='solve'>"+"</div>";
+}
+
+function ecuacion(){
+  var prueba = document.getElementById("prueba");
+  var num_variables_decision = document.getElementById("num_variables_decision").value;
+  var num_restricciones = document.getElementById("num_restricciones").value;
+  var seleccion;
+  var matriz = new Array();
+  var contador_seleccion=0;
+
+  for(var i=0; i<num_restricciones; i++){
+    seleccion = document.getElementById("input_"+i).value;
+    if(seleccion == "<=" || seleccion=="=")
+      contador_seleccion+=1;
+    else contador_seleccion+=2;
+  }
+
+  for(var i=0; i<parseInt(num_restricciones)+1;i++)
+      matriz[i]= new Array();
+
+  for(var i=0; i<parseInt(num_restricciones)+1;i++)
+    for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2;j++)
+      matriz[i][j]=0;
+
+  for(var i=0; i<parseInt(num_restricciones)+1; i++){
+    for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; j++){
+      prueba.innerHTML+=matriz[i][j];  
+    }
+      prueba.innerHTML+="\n";
+
+  }
+
 }
