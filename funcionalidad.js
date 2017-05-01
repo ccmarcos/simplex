@@ -1,7 +1,9 @@
 var matriz = new Array();
+var posicionArtif=new Array();
+
 function newInput() {
     var c=1;
-    var array = ["<=", "=", ">="];
+    var array = ["<=", ">=", "="];
     var inpt = document.createElement('input');
     var num_variables_decision = document.getElementById("num_variables_decision").value;
     var num_restricciones = document.getElementById("num_restricciones").value;
@@ -57,68 +59,51 @@ function ecuacion(){
   var prueba = document.getElementById("prueba");
   var num_variables_decision = document.getElementById("num_variables_decision").value;
   var num_restricciones = document.getElementById("num_restricciones").value;
-  var seleccion;
-  var contador_seleccion=0;
+  var contador_seleccion;
   var posicionExcHolgAr=parseInt(num_variables_decision);
-  var posicionArtif=new Array();
   var horizontal = new Array();
-  var suma;
+  var entra;
+  var sale;
+  var menor=1000000000;
 
-  for(var i=0; i<num_restricciones; i++){
-    seleccion = document.getElementById("input_"+i).value;
-    if(seleccion == "<=" || seleccion=="=")
-      contador_seleccion+=1;
-    else contador_seleccion+=2;
-  }
-
+  contador_seleccion = dimMatriz(num_restricciones);
   crearMatriz(num_restricciones);
   inicializaMatriz(num_restricciones,num_variables_decision,contador_seleccion);
+  restriccionesMatriz(num_restricciones,num_variables_decision,contador_seleccion);
+  agregandoHolExArti(num_restricciones,posicionExcHolgAr);
+  calculaWprima(num_variables_decision,contador_seleccion);
+  entra=posEntra(num_variables_decision,contador_seleccion);
 
   for(var i=0; i<num_restricciones; i++){
-    for(var j=0; j< parseInt(num_variables_decision)+1; j++){
-        if(j==num_variables_decision)
-          matriz[i+1][parseInt(num_variables_decision)+parseInt(contador_seleccion)+1]=document.getElementById("input_"+j+"_"+i).value;
-        else matriz[i+1][j+1]=document.getElementById("input_"+j+"_"+i).value;
-    }
+      if(matriz[i+1][entra]!=0 || matriz[i+1]>0 ){
+          if((matriz[i+1][parseInt(num_variables_decision)+parseInt(contador_seleccion)+1]/matriz[i+1][entra])<menor){
+            menor = matriz[i+1][parseInt(num_variables_decision)+parseInt(contador_seleccion)+1]/matriz[i+1][entra];
+            sale = i+1;
+            }
+
+      }
+
   }
 
-  posicionArtif.push(0);
-  for(var i=0; i<num_restricciones; i++){
-    seleccion = document.getElementById("input_"+i).value;
-    if(seleccion == "<="){
-      posicionExcHolgAr+=1;
-      matriz[i+1][posicionExcHolgAr]=1;
-    }
-    else if(seleccion=="="){
-      posicionExcHolgAr+=1;
-      matriz[i+1][posicionExcHolgAr]=1;
-      matriz[0][posicionExcHolgAr]=-1;
-      posicionArtif.push(i+1);
-    }
-    else {
-      posicionExcHolgAr+=1;
-      matriz[i+1][posicionExcHolgAr]=-1;
-      posicionExcHolgAr+=1;
-      matriz[i+1][posicionExcHolgAr]=1;
-      matriz[0][posicionExcHolgAr]=-1;
-      posicionArtif.push(i+1);
-    }
-  }
-  matriz[0][0]=1;
 
-  for(var i=0; i< parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; i++){
-    suma=0;
-    for(var j=0; j<posicionArtif.length; j++){
-      suma+=parseInt(matriz[posicionArtif[j]][i]);
-    }
-  //  horizontal.push(suma);
-    matriz[0][i]=suma;
-  }
 
   //for(var i=0; i< parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; i++)
   //  prueba.innerHTML+=horizontal[i];
   //prueba.innerHTML+=posicionExcHolgAr;
   imprimeMatriz(num_restricciones,num_variables_decision,contador_seleccion);
+  prueba.innerHTML+="sale " + sale;
+}
+
+function dimMatriz(restric){//calculando las dimenciones de la matriz
+  var seleccion;
+  var conta_select=0;
+  for(var i=0; i<restric; i++){
+    seleccion = document.getElementById("input_"+i).value;
+    if(seleccion == "<=" || seleccion=="=")
+      conta_select+=1;
+    else conta_select+=2;
+  }
+  return conta_select;
 }
 
 function crearMatriz(restric){
@@ -139,4 +124,64 @@ function imprimeMatriz(restric, varDecision, contaSelect){
     }
       prueba.innerHTML+="\n";
   }
+}
+
+function restriccionesMatriz(restric, varDecision, contaSelect){ //recuperacion de la informacion de las restricciones
+  for(var i=0; i<restric; i++){
+      for(var j=0; j< parseInt(varDecision)+1; j++){
+          if(j==varDecision) //para poner los valores en el R.H
+            matriz[i+1][parseInt(varDecision)+parseInt(contaSelect)+1]=document.getElementById("input_"+j+"_"+i).value;
+          else matriz[i+1][j+1]=document.getElementById("input_"+j+"_"+i).value;
+      }
+    }
+  }
+
+function agregandoHolExArti(restric,posHEA){ //agregando las variables de holgura, exceso y artificiales a la matriz
+  var seleccion;
+  posicionArtif.push(0);
+  for(var i=0; i<restric; i++){
+    seleccion = document.getElementById("input_"+i).value;
+    if(seleccion == "<="){
+      posHEA+=1;
+      matriz[i+1][posHEA]=1;
+    }
+    else if(seleccion=="="){
+      posHEA+=1;
+      matriz[i+1][posHEA]=1;
+      matriz[0][posHEA]=-1;
+      posicionArtif.push(i+1);
+    }
+    else {
+      posHEA+=1;
+      matriz[i+1][posHEA]=-1;
+      posHEA+=1;
+      matriz[i+1][posHEA]=1;
+      matriz[0][posHEA]=-1;
+      posicionArtif.push(i+1);
+    }
+  }
+  matriz[0][0]=1;
+}
+
+function calculaWprima(varDecision,conta_select){ //calcula la primera fila del tableo inicial
+  var suma;
+  for(var i=0; i< parseInt(varDecision)+parseInt(conta_select)+2; i++){
+    suma=0;
+    for(var j=0; j<posicionArtif.length; j++){
+      suma+=parseInt(matriz[posicionArtif[j]][i]);
+    }
+    matriz[0][i]=suma;
+  }
+}
+
+function posEntra(varDecision,conta_select){
+  var mayor=0;
+  var entraMin;
+  for(var j=0; j<parseInt(varDecision)+parseInt(conta_select)+2; j++){
+    if(matriz[0][j+1]>0 && j<parseInt(varDecision)+parseInt(conta_select) && matriz[0][j+1]>mayor){
+        mayor = matriz[0][j+1];
+        entraMin = j+1;
+      }
+  }
+  return entraMin;
 }
