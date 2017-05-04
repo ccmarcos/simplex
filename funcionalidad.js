@@ -61,10 +61,14 @@ function ecuacion(){
   var num_restricciones = document.getElementById("num_restricciones").value;
   var contador_seleccion;
   var posicionExcHolgAr=parseInt(num_variables_decision);
-  var horizontal = new Array();
   var entra;
   var sale;
-  var menor=1000000000;
+
+  var entraMin;
+  var saleMin;
+
+  var hacerUno;
+
 
   contador_seleccion = dimMatriz(num_restricciones);
   crearMatriz(num_restricciones);
@@ -72,26 +76,67 @@ function ecuacion(){
   restriccionesMatriz(num_restricciones,num_variables_decision,contador_seleccion);
   agregandoHolExArti(num_restricciones,posicionExcHolgAr);
   calculaWprima(num_variables_decision,contador_seleccion);
-  entra=posEntra(num_variables_decision,contador_seleccion);
+  //entra=posEntra(num_variables_decision,contador_seleccion);
+  //sale=posSale(num_restricciones,num_variables_decision,contador_seleccion,entra)
 
+  //---------------------------- aqui empezamos a iterar sobre la matriz-----------
+
+
+//var bandera=true;
+//while(){
+for(var k=0; k<100;k++){
+  var mayor=0;
+  var menor=1000000000;
+  for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; j++){
+    if(j<parseInt(num_variables_decision)+parseInt(contador_seleccion)){
+      if(matriz[0][j+1]>0 && matriz[0][j+1]>mayor){
+          mayor = matriz[0][j+1];
+          entraMin = j+1;
+        }else break;
+    }
+  }
   for(var i=0; i<num_restricciones; i++){
-      if(matriz[i+1][entra]!=0 || matriz[i+1]>0 ){
-          if((matriz[i+1][parseInt(num_variables_decision)+parseInt(contador_seleccion)+1]/matriz[i+1][entra])<menor){
-            menor = matriz[i+1][parseInt(num_variables_decision)+parseInt(contador_seleccion)+1]/matriz[i+1][entra];
-            sale = i+1;
+      if(matriz[i+1][entraMin]!=0 || matriz[i+1]>0 ){
+          if((matriz[i+1][parseInt(num_variables_decision)+parseInt(contador_seleccion)+1]/matriz[i+1][entraMin])<menor){
+            menor = matriz[i+1][parseInt(num_variables_decision)+parseInt(contador_seleccion)+1]/matriz[i+1][entraMin];
+            saleMin = i+1;
             }
-
       }
-
   }
 
+  hacerUno = matriz[saleMin][entraMin];
+  for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; j++){
+      matriz[saleMin][j]/=hacerUno;
+      /*var num=parseInt(matriz[saleMin][j])/hacerUno;
+      var redondeado = num.toFixed(2);
+      matriz[saleMin][j]=redondeado;*/
+  }
 
+  for(var i=0; i<parseInt(num_restricciones)+1; i++){
+    var vector = new Array();
+      if(matriz[i][entraMin]>0 && i!=saleMin){
+        var aux = matriz[i][entraMin];
+        for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; j++){
+        vector.push(matriz[saleMin][j]*aux);
+        matriz[i][j]-=vector[j];
+      }
+    }else if(matriz[i][entraMin]<0 && i!=saleMin){
+      var aux = matriz[i][entraMin];
+      for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; j++){
+      vector.push(matriz[saleMin][j]*aux);
+      matriz[i][j]+=vector[j];
+    }
+    }
+  }
+}
 
   //for(var i=0; i< parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; i++)
   //  prueba.innerHTML+=horizontal[i];
   //prueba.innerHTML+=posicionExcHolgAr;
-  imprimeMatriz(num_restricciones,num_variables_decision,contador_seleccion);
-  prueba.innerHTML+="sale " + sale;
+  //imprimeMatriz(num_restricciones,num_variables_decision,contador_seleccion);
+  prueba.innerHTML+="entra " + entraMin;
+  prueba.innerHTML+="sale " + saleMin;
+  imprimirTabla(num_restricciones,num_variables_decision,contador_seleccion);
 }
 
 function dimMatriz(restric){//calculando las dimenciones de la matriz
@@ -174,6 +219,28 @@ function calculaWprima(varDecision,conta_select){ //calcula la primera fila del 
   }
 }
 
+function imprimirTabla(restric,varDecision,contaSelect) {
+  var table = document.createElement('table');
+    table.id = "miTabla";
+  for(var i=0; i<parseInt(restric)+1;i++){
+    var tr = document.createElement('tr');
+    for(var j=0; j<parseInt(varDecision)+parseInt(contaSelect)+2;j++){
+
+      var td = document.createElement('td');
+
+      var text = document.createTextNode(matriz[i][j]);
+
+      td.appendChild(text);
+      tr.appendChild(td);
+
+      table.appendChild(tr);
+    }
+
+    document.body.appendChild(table);
+  }
+}
+
+/*
 function posEntra(varDecision,conta_select){
   var mayor=0;
   var entraMin;
@@ -185,3 +252,18 @@ function posEntra(varDecision,conta_select){
   }
   return entraMin;
 }
+
+function posSale(restric,varDecision,conta_select,varEntra){
+  var saleMin;
+  var menor=1000000000;
+  for(var i=0; i<restric; i++){
+      if(matriz[i+1][varEntra]!=0 || matriz[i+1]>0 ){
+          if((matriz[i+1][parseInt(varDecision)+parseInt(conta_select)+1]/matriz[i+1][varEntra])<menor){
+            menor = matriz[i+1][parseInt(varDecision)+parseInt(conta_select)+1]/matriz[i+1][varEntra];
+            saleMin = i+1;
+            }
+      }
+  }
+  return saleMin;
+}
+*/

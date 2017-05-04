@@ -80,3 +80,11 @@ input[type="text"]:focus {
     background-color: #2d3e52;
     font-family: 'Ubuntu', sans-serif;
 }
+td {
+  border: 2px solid blue;
+  margin: 15px;
+ padding: 25px;
+}
+/*#myTable{
+  border: 5px solid red;
+}*/
