@@ -1,5 +1,7 @@
 var matriz = new Array();
-var posicionArtif=new Array();
+var eliminarPosArtifi = new Array();
+var posicionArtif = new Array();
+var matriz2 = new Array();
 
 function newInput() {
     var c=1;
@@ -63,11 +65,8 @@ function ecuacion(){
   var posicionExcHolgAr=parseInt(num_variables_decision);
   var entra;
   var sale;
-
-  var entraMin;
-  var saleMin;
-
   var hacerUno;
+
 
 
   contador_seleccion = dimMatriz(num_restricciones);
@@ -79,64 +78,84 @@ function ecuacion(){
   //entra=posEntra(num_variables_decision,contador_seleccion);
   //sale=posSale(num_restricciones,num_variables_decision,contador_seleccion,entra)
 
-  //---------------------------- aqui empezamos a iterar sobre la matriz-----------
+  //---------------------------- PRIMERA FASE---------------------
 
+  primeraFase(num_restricciones,num_variables_decision,contador_seleccion,matriz);
+/*
+var bandera=1;
+while(bandera!=0){
+    var mayor=0;
+    var menor=1000000000;
+    var entraMin;
+    var saleMin;
+     bandera=0;
+     imprimirTabla(num_restricciones,num_variables_decision,contador_seleccion);
+    for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion); j++){
+        if(matriz[0][j+1]>0 && matriz[0][j+1]>mayor){
+            mayor = matriz[0][j+1];
+            entraMin = j+1;
+            bandera=1;
+          }
 
-//var bandera=true;
-//while(){
-for(var k=0; k<100;k++){
-  var mayor=0;
-  var menor=1000000000;
-  for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; j++){
-    if(j<parseInt(num_variables_decision)+parseInt(contador_seleccion)){
-      if(matriz[0][j+1]>0 && matriz[0][j+1]>mayor){
-          mayor = matriz[0][j+1];
-          entraMin = j+1;
-        }else break;
     }
-  }
-  for(var i=0; i<num_restricciones; i++){
-      if(matriz[i+1][entraMin]!=0 || matriz[i+1]>0 ){
-          if((matriz[i+1][parseInt(num_variables_decision)+parseInt(contador_seleccion)+1]/matriz[i+1][entraMin])<menor){
-            menor = matriz[i+1][parseInt(num_variables_decision)+parseInt(contador_seleccion)+1]/matriz[i+1][entraMin];
-            saleMin = i+1;
-            }
-      }
-  }
 
-  hacerUno = matriz[saleMin][entraMin];
-  for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; j++){
-      matriz[saleMin][j]/=hacerUno;
-      /*var num=parseInt(matriz[saleMin][j])/hacerUno;
-      var redondeado = num.toFixed(2);
-      matriz[saleMin][j]=redondeado;*/
-  }
+    for(var i=0; i<num_restricciones; i++){
+        if(matriz[i+1][entraMin]!=0 || matriz[i+1]>0 ){
+            if((matriz[i+1][parseInt(num_variables_decision)+parseInt(contador_seleccion)+1]/matriz[i+1][entraMin])<menor){
+              menor = matriz[i+1][parseInt(num_variables_decision)+parseInt(contador_seleccion)+1]/matriz[i+1][entraMin];
+              saleMin = i+1;
+              }
+        }
+    }
 
-  for(var i=0; i<parseInt(num_restricciones)+1; i++){
-    var vector = new Array();
-      if(matriz[i][entraMin]>0 && i!=saleMin){
+    hacerUno = matriz[saleMin][entraMin];
+    for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; j++){
+        matriz[saleMin][j]/=hacerUno;
+
+    }
+
+    for(var i=0; i<parseInt(num_restricciones)+1; i++){
+      var vector = new Array();
+        if(matriz[i][entraMin]>0 && i!=saleMin){
+          var aux = matriz[i][entraMin];
+          for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; j++){
+          vector.push(matriz[saleMin][j]*aux);
+          matriz[i][j]-=vector[j];
+        }
+      }else if(matriz[i][entraMin]<0 && i!=saleMin){
         var aux = matriz[i][entraMin];
         for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; j++){
         vector.push(matriz[saleMin][j]*aux);
-        matriz[i][j]-=vector[j];
+        matriz[i][j]+=vector[j];
       }
-    }else if(matriz[i][entraMin]<0 && i!=saleMin){
-      var aux = matriz[i][entraMin];
-      for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; j++){
-      vector.push(matriz[saleMin][j]*aux);
-      matriz[i][j]+=vector[j];
+      }
     }
-    }
-  }
+}*/
+
+
+
+//----------------Segunda Fase-----------------------------
+
+  inicializaMatriz2(num_restricciones,num_variables_decision,contador_seleccion);
+
+  for(var i=0; i<parseInt(num_restricciones);i++){
+    var aux=0;
+    var k=0;
+    for(var j=0; j<parseInt(num_variables_decision)+parseInt(contador_seleccion)+2;j++){
+        if(eliminarPosArtifi[aux]!=j)
+          matriz2[i+1][k++]=matriz[i+1][j];
+        else aux++;
+      }
+
 }
 
-  //for(var i=0; i< parseInt(num_variables_decision)+parseInt(contador_seleccion)+2; i++)
-  //  prueba.innerHTML+=horizontal[i];
-  //prueba.innerHTML+=posicionExcHolgAr;
-  //imprimeMatriz(num_restricciones,num_variables_decision,contador_seleccion);
-  prueba.innerHTML+="entra " + entraMin;
-  prueba.innerHTML+="sale " + saleMin;
-  imprimirTabla(num_restricciones,num_variables_decision,contador_seleccion);
+  matriz2[0][0]=1; //valor de z
+
+  for(var j=0; j<parseInt(num_variables_decision);j++)
+      matriz2[0][j+1]=-1*parseInt(document.getElementById("objetivo"+j).value);
+
+  imprimirTabla2(num_restricciones,num_variables_decision,contador_seleccion);
+
 }
 
 function dimMatriz(restric){//calculando las dimenciones de la matriz
@@ -152,8 +171,10 @@ function dimMatriz(restric){//calculando las dimenciones de la matriz
 }
 
 function crearMatriz(restric){
-  for(var i=0; i<parseInt(restric)+1;i++)
+  for(var i=0; i<parseInt(restric)+1;i++){
       matriz[i]= new Array();
+      matriz2[i] = new Array();
+    }
 }
 
 function inicializaMatriz(restric, varDecision, contaSelect){
@@ -162,10 +183,17 @@ function inicializaMatriz(restric, varDecision, contaSelect){
       matriz[i][j]=0;
 }
 
-function imprimeMatriz(restric, varDecision, contaSelect){
+function inicializaMatriz2(restric, varDecision, contaSelect){
+  for(var i=0; i<parseInt(restric)+1;i++)
+      for(var j=0; j<parseInt(varDecision)+parseInt(contaSelect)+2-eliminarPosArtifi.length;j++){
+          matriz2[i][j]=0;
+    }
+}
+
+function imprimeMatriz2(restric, varDecision, contaSelect){
   for(var i=0; i<parseInt(restric)+1; i++){
-    for(var j=0; j<parseInt(varDecision)+parseInt(contaSelect)+2; j++){
-      prueba.innerHTML+=matriz[i][j];
+      for(var j=0; j<parseInt(varDecision)+parseInt(contaSelect)+2-eliminarPosArtifi.length; j++){
+      prueba.innerHTML+=matriz2[i][j];
     }
       prueba.innerHTML+="\n";
   }
@@ -193,16 +221,20 @@ function agregandoHolExArti(restric,posHEA){ //agregando las variables de holgur
     else if(seleccion=="="){
       posHEA+=1;
       matriz[i+1][posHEA]=1;
+      eliminarPosArtifi.push(posHEA);
       matriz[0][posHEA]=-1;
       posicionArtif.push(i+1);
+
     }
     else {
       posHEA+=1;
       matriz[i+1][posHEA]=-1;
       posHEA+=1;
       matriz[i+1][posHEA]=1;
+      eliminarPosArtifi.push(posHEA);
       matriz[0][posHEA]=-1;
       posicionArtif.push(i+1);
+
     }
   }
   matriz[0][0]=1;
@@ -240,6 +272,79 @@ function imprimirTabla(restric,varDecision,contaSelect) {
   }
 }
 
+
+function imprimirTabla2(restric,varDecision,contaSelect) {
+  var table = document.createElement('table');
+    table.id = "miTabla";
+  for(var i=0; i<parseInt(restric)+1;i++){
+    var tr = document.createElement('tr');
+    for(var j=0; j<parseInt(varDecision)+parseInt(contaSelect)+2-eliminarPosArtifi.length;j++){
+
+      var td = document.createElement('td');
+
+      var text = document.createTextNode(matriz2[i][j]);
+
+      td.appendChild(text);
+      tr.appendChild(td);
+
+      table.appendChild(tr);
+    }
+
+    document.body.appendChild(table);
+  }
+}
+
+function primeraFase(restric,varDecision,contaSelect,matrix){
+  var bandera=1;
+  while(bandera!=0){
+      var mayor=0;
+      var menor=1000000000;
+      var entraMin;
+      var saleMin;
+       bandera=0;
+       imprimirTabla(restric,varDecision,contaSelect);
+      for(var j=0; j<parseInt(varDecision)+parseInt(contaSelect); j++){
+          if(matrix[0][j+1]>0 && matrix[0][j+1]>mayor){
+              mayor = matrix[0][j+1];
+              entraMin = j+1;
+              bandera=1;
+            }
+
+      }
+
+      for(var i=0; i<restric; i++){
+          if(matrix[i+1][entraMin]!=0 || matrix[i+1]>0 ){
+              if((matrix[i+1][parseInt(varDecision)+parseInt(contaSelect)+1]/matrix[i+1][entraMin])<menor){
+                menor = matrix[i+1][parseInt(varDecision)+parseInt(contaSelect)+1]/matrix[i+1][entraMin];
+                saleMin = i+1;
+                }
+          }
+      }
+
+      hacerUno = matrix[saleMin][entraMin];
+      for(var j=0; j<parseInt(varDecision)+parseInt(contaSelect)+2; j++)
+          matrix[saleMin][j]/=hacerUno;
+
+
+      for(var i=0; i<parseInt(restric)+1; i++){
+        var vector = new Array();
+          if(matrix[i][entraMin]>0 && i!=saleMin){
+            var aux = matrix[i][entraMin];
+            for(var j=0; j<parseInt(varDecision)+parseInt(contaSelect)+2; j++){
+            vector.push(matrix[saleMin][j]*aux);
+            matrix[i][j]-=vector[j];
+          }
+        }else if(matrix[i][entraMin]<0 && i!=saleMin){
+          var aux = matrix[i][entraMin];
+          for(var j=0; j<parseInt(varDecision)+parseInt(contaSelect)+2; j++){
+          vector.push(matrix[saleMin][j]*aux);
+          matrix[i][j]+=vector[j];
+        }
+        }
+      }
+  }
+}
+
 /*
 function posEntra(varDecision,conta_select){
   var mayor=0;
@@ -267,3 +372,8 @@ function posSale(restric,varDecision,conta_select,varEntra){
   return saleMin;
 }
 */
+
+
+/*var num=parseInt(matriz[saleMin][j])/hacerUno;
+var redondeado = num.toFixed(2);
+matriz[saleMin][j]=redondeado;*/
